@@ -30,6 +30,7 @@ import {ref} from "vue";
 import Note from "../components/Notes/Note.vue";
 import AddEditNote from "../components/Notes/AddEditNote.vue";
 import {useStoreNotes} from "../stores/storeNote";
+import {useWatchCharacters} from "../use/useWatchCharcaters";
 
 const storeNotes = useStoreNotes();
 
@@ -45,6 +46,8 @@ const addNote = () => {
 const deleteNote = (idToDelete) => {
   storeNotes.deleteNote(idToDelete);
 };
+
+useWatchCharacters(newNote);
 </script>
 
 <style scoped>
