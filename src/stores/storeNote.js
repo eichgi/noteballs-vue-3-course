@@ -1,10 +1,9 @@
 import {defineStore} from "pinia";
 import {db} from '@/js/firebase';
+import {useStoreAuth} from "./storeAuth";
 import {
   collection,
-  getDocs,
   onSnapshot,
-  setDoc,
   doc,
   deleteDoc,
   updateDoc,
@@ -13,31 +12,32 @@ import {
   addDoc,
 } from 'firebase/firestore';
 
-const notesCollectionRef = collection(db, 'notes');
-const notesColectionQuery = query(notesCollectionRef, orderBy('date', 'desc'));
+let notesCollectionRef, notesColectionQuery;
+let getNotesSnapshot = null;
 
 export const useStoreNotes = defineStore('storeNotes', {
   state: () => {
     return {
       notesLoaded: false,
-      notes: [/*{
-        id: '1',
-        content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias ducimus eum ipsum laboriosam omnis optio\n' +
-          '          quisquam quos ratione reiciendis tenetur? Doloribus earum minus repudiandae sunt voluptatem. Accusantium\n' +
-          '          deleniti dolores facilis?',
-
-      },
-        {
-          id: '2',
-          content: 'Shorter note updated x2',
-
-        }*/],
+      notes: [],
     }
   },
   actions: {
+    init() {
+      const storeAuth = useStoreAuth();
+
+      notesCollectionRef = collection(db, 'users', storeAuth.user.id, 'notes');
+      notesColectionQuery = query(notesCollectionRef, orderBy('date', 'desc'));
+      this.getNotes();
+    },
     async getNotes() {
       this.notesLoaded = false;
-      onSnapshot(notesColectionQuery, (querySnapshot) => {
+
+      if (getNotesSnapshot) {
+        getNotesSnapshot(); //unsubscribe from any active listener
+      }
+
+      getNotesSnapshot = onSnapshot(notesColectionQuery, (querySnapshot) => {
         let notes = [];
         querySnapshot.forEach(doc => {
           notes.push({
@@ -49,6 +49,12 @@ export const useStoreNotes = defineStore('storeNotes', {
         this.notes = notes;
         this.notesLoaded = true;
       });
+    },
+    clearNotes() {
+      this.notes = [];
+      if (getNotesSnapshot) {
+        getNotesSnapshot();
+      }
     },
     async addNote(note) {
       //this.notes.push(note);
