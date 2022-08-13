@@ -5,7 +5,9 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
 import {useStoreNotes} from "./storeNote";
 import {useStoreUsers} from "./storeUsers";
@@ -30,7 +32,8 @@ export const useStoreAuth = defineStore('storeAuth', {
         console.log("onAuthStateChanged");
         if (user) {
           console.log("USER: ", user);
-          user.getIdTokenResult().then(tokenResult => console.log("GET ID TOKEN RESULT: ", tokenResult.claims));
+          user.getIdTokenResult()
+            .then(tokenResult => console.log("GET ID TOKEN RESULT: ", tokenResult.claims));
           this.user = user;
           this.user.id = user.uid;
           this.user.email = user.email;
@@ -41,6 +44,26 @@ export const useStoreAuth = defineStore('storeAuth', {
           this.router.replace('/auth');
           storeNotes.clearNotes();
         }
+      });
+    },
+    signInWithGoogle() {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then(res => {
+          const credential = GoogleAuthProvider.credentialFromResult(res);
+          const token = credential.accessToken;
+          const user = res.user;
+          console.log(user, token);
+        }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+        console.log(errorCode, errorMessage, email, credential);
       });
     },
     loginUser(credentials) {

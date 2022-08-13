@@ -30,3 +30,6 @@ The following links are the firebase docs for this project:
 
 [Rest API for authentication](https://firebase.google.com/docs/reference/rest/auth#section-api-usage)
 [Firebase Auth Custom Claims Management](https://firebase.google.com/docs/auth/admin/custom-claims)
+
+## Deployments
+HOSTING: `firebase deploy --only hosting`
