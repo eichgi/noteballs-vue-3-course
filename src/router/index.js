@@ -4,6 +4,8 @@ import ViewNotes from "../views/ViewNotes.vue";
 import ViewStats from "../views/ViewStats.vue";
 import ViewEditNote from "../views/ViewEditNote.vue";
 import VueAuth from "../views/VueAuth.vue";
+import Profile from "../views/Profile.vue";
+import ViewUsers from "../views/ViewUsers.vue";
 
 const routes = [
   {
@@ -26,6 +28,16 @@ const routes = [
     component: VueAuth,
     name: 'auth',
   },
+  {
+    path: '/profile',
+    component: Profile,
+    name: 'profile',
+  },
+  {
+    path: '/users',
+    component: ViewUsers,
+    name: 'users',
+  }
 ];
 
 const router = createRouter({

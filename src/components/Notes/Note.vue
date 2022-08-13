@@ -1,5 +1,10 @@
 <template>
   <div class="card mb-4">
+    <div class="card-image" v-if="imageURL">
+      <figure class="image is-4by3">
+        <img :src="imageURL" alt="Placeholder image">
+      </figure>
+    </div>
     <div class="card-content">
       <div class="content">
         {{ note.content }}
@@ -17,17 +22,18 @@
       >Delete</a>
     </footer>
     <ModalDeleteNote
-        :noteId="note.id"
+        :note="note"
         v-if="modals.deleteNote"
         v-model="modals.deleteNote"/>
   </div>
 </template>
 
 <script setup>
-import {computed, reactive} from 'vue';
+import {computed, onMounted, reactive, ref as vueRef} from 'vue';
 import {useStoreNotes} from "../../stores/storeNote";
 import ModalDeleteNote from "./ModalDeleteNote.vue";
 import {useDateFormat} from '@vueuse/core';
+import {getObjectUrl} from "../../use/useFirebaseStorage";
 
 const storeNotes = useStoreNotes();
 const props = defineProps({
@@ -38,7 +44,7 @@ const props = defineProps({
 });
 
 const dateFormatted = computed(() => {
-  let date = new Date(parseInt(props.note.date));
+  let date = new Date(props.note.createdAt);
   date = useDateFormat(date, 'DD-MM-YYYY');
   return date.value;
 });
@@ -52,10 +58,17 @@ const modals = reactive({
   deleteNote: false,
   editNote: false,
 });
+let imageURL = vueRef('')
 
 const deleteNote = () => {
   modals.deleteNote = true;
 };
+
+onMounted(async () => {
+  if (props.note.image) {
+    imageURL.value = await getObjectUrl(props.note.image.fullPath);
+  }
+});
 </script>
 
 <style scoped>

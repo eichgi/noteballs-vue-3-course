@@ -27,6 +27,12 @@
           <router-link class="navbar-item" active-class="is-active" to="/stats"
                        @click="showMobileNav = false;">Stats
           </router-link>
+          <router-link class="navbar-item" active-class="is-active" to="/profile"
+                       @click="showMobileNav = false;">Profile
+          </router-link>
+          <router-link class="navbar-item" active-class="is-active" to="/users"
+                       @click="showMobileNav = false;">Users
+          </router-link>
         </div>
       </div>
     </div>

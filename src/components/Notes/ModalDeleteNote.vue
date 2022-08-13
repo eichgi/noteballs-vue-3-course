@@ -11,7 +11,7 @@
       </section>
       <footer class="modal-card-foot is-justify-content-flex-end">
         <button class="button" @click="closeModal">Cancel</button>
-        <button class="button is-danger" @click="storeNotes.deleteNote(noteId)">Delete</button>
+        <button class="button is-danger" @click="deleteNote">Delete</button>
       </footer>
     </div>
   </div>
@@ -21,6 +21,7 @@
 import {onClickOutside} from '@vueuse/core';
 import {onMounted, onUnmounted, ref} from "vue";
 import {useStoreNotes} from "../../stores/storeNote";
+import {deleteFirebaseObject} from "../../use/useFirebaseStorage";
 
 const storeNotes = useStoreNotes();
 
@@ -29,8 +30,8 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  noteId: {
-    type: String,
+  note: {
+    type: Object,
     required: true,
   }
 });
@@ -41,6 +42,14 @@ const closeModal = () => {
   //console.log('close modal');
   emit('update:modelValue', false);
 };
+
+const deleteNote = async () => {
+  if (props.note.image) {
+    await deleteFirebaseObject(props.note.image.fullPath);
+  }
+
+  storeNotes.deleteNote(props.note.id);
+}
 
 const modalCardRef = ref(null);
 

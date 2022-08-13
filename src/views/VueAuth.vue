@@ -60,7 +60,7 @@ const formTitle = computed(() => {
 });
 
 const credentials = reactive({
-  email: 'hiram@noteballs.com',
+  email: 'admin@rio.com',
   password: '123456',
 });
 

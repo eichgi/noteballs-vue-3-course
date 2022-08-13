@@ -1,11 +1,15 @@
 import {defineStore} from "pinia";
-import {auth} from "../js/firebase";
+import {updateProfile} from 'firebase/auth';
+import {auth, db} from "../js/firebase";
 import {
-  createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged
 } from "firebase/auth";
 import {useStoreNotes} from "./storeNote";
+import {useStoreUsers} from "./storeUsers";
+import {doc, updateDoc} from "firebase/firestore";
 
 export const useStoreAuth = defineStore('storeAuth', {
   state: () => {
@@ -13,12 +17,21 @@ export const useStoreAuth = defineStore('storeAuth', {
       user: {},
     };
   },
+  getters: {
+    authenticatedUser(state) {
+      return state.user;
+    }
+  },
   actions: {
     init() {
       const storeNotes = useStoreNotes();
 
       onAuthStateChanged(auth, (user) => {
+        console.log("onAuthStateChanged");
         if (user) {
+          console.log("USER: ", user);
+          user.getIdTokenResult().then(tokenResult => console.log("GET ID TOKEN RESULT: ", tokenResult.claims));
+          this.user = user;
           this.user.id = user.uid;
           this.user.email = user.email;
           this.router.push('/');
@@ -47,7 +60,14 @@ export const useStoreAuth = defineStore('storeAuth', {
       createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log(user);
+          console.log("REGISTERED USER: ", user);
+          useStoreUsers().createUser({
+            id: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            photoURL: user.photoURL,
+          });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -61,6 +81,26 @@ export const useStoreAuth = defineStore('storeAuth', {
           console.log('signed out...');
         })
         .catch(error => console.log(error))
-    }
+    },
+    async updateUserProfile(data) {
+      try {
+        await updateProfile(auth.currentUser, data); // No response when successful
+        await this.updateDatabaseUser(data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async updateDatabaseUser(data) {
+      try {
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        // No response when successful
+        await updateDoc(userRef, {
+          displayName: data.displayName,
+          photoURL: data.photoURL,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
   }
 });
