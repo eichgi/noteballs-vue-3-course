@@ -3,7 +3,7 @@
 
     <div class="container is-max-desktop px-2">
       <div class="navbar-brand">
-        <div class="navbar-item is-size-4 is-family-monospace">Noteballs</div>
+        <div class="navbar-item is-size-4 is-family-monospace">Noteballs {{appVersion}}</div>
 
         <a role="button" class="navbar-burger" :class="{'is-active' : showMobileNav}"
            @click.prevent="showMobileNav=!showMobileNav" aria-label="menu"
@@ -27,6 +27,12 @@
           <router-link class="navbar-item" active-class="is-active" to="/stats"
                        @click="showMobileNav = false;">Stats
           </router-link>
+          <router-link class="navbar-item" active-class="is-active" to="/profile"
+                       @click="showMobileNav = false;">Profile
+          </router-link>
+          <router-link class="navbar-item" active-class="is-active" to="/users"
+                       @click="showMobileNav = false;">Users
+          </router-link>
         </div>
       </div>
     </div>
@@ -39,6 +45,7 @@ import {ref} from "vue";
 import {onClickOutside} from '@vueuse/core';
 import {useStoreAuth} from "../../stores/storeAuth";
 
+const appVersion = import.meta.env.VITE_APP_VERSION;
 const storeAuth = useStoreAuth();
 const showMobileNav = ref(false);
 const navbarMenuRef = ref(null);

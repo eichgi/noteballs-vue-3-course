@@ -10,7 +10,9 @@ import {
   query,
   orderBy,
   addDoc,
+  getDoc
 } from 'firebase/firestore';
+import {addFirestoreDoc, deleteFirestoreDoc, updateFirestoreDoc} from "../use/useFirestore";
 
 let notesCollectionRef, notesColectionQuery;
 let getNotesSnapshot = null;
@@ -27,7 +29,7 @@ export const useStoreNotes = defineStore('storeNotes', {
       const storeAuth = useStoreAuth();
 
       notesCollectionRef = collection(db, 'users', storeAuth.user.id, 'notes');
-      notesColectionQuery = query(notesCollectionRef, orderBy('date', 'desc'));
+      notesColectionQuery = query(notesCollectionRef, orderBy('createdAt', 'desc'));
       this.getNotes();
     },
     async getNotes() {
@@ -43,7 +45,9 @@ export const useStoreNotes = defineStore('storeNotes', {
           notes.push({
             id: doc.id,
             content: doc.data().content,
-            date: doc.data().date,
+            createdAt: doc.data().createdAt,
+            updatedAt: doc.data().updatedAt,
+            image: doc.data().image ?? null,
           });
         });
         this.notes = notes;
@@ -60,24 +64,51 @@ export const useStoreNotes = defineStore('storeNotes', {
     },
     async addNote(note) {
       //this.notes.push(note);
-      await addDoc(notesCollectionRef, {
+      const data = {
         content: note.content,
-        date: new Date().getTime().toString(),
-      });
+        image: note.image,
+      };
+      //await addDoc(notesCollectionRef, data);
+      await addFirestoreDoc(notesCollectionRef, data);
     },
     async deleteNote(noteId) {
       //this.notes = this.notes.filter(note => note.id !== noteId);
-      await deleteDoc(doc(notesCollectionRef, noteId));
+      //await deleteDoc(doc(notesCollectionRef, noteId));
+      await deleteFirestoreDoc(notesCollectionRef, noteId);
     },
-    async updateNote(id, content) {
-      /*const index = this.notes.findIndex(note => note.id === id);
-      this.notes[index].content = content;*/
-      await updateDoc(doc(notesCollectionRef, id), {
-        content
-      })
+    async updateNote(id, note) {
+      const data = {
+        content: note.content,
+        image: note.image,
+      };
+      /*await updateDoc(doc(notesCollectionRef, id), data);*/
+      await updateFirestoreDoc(notesCollectionRef, id, data);
+      await this.getNotes();
     },
+    // API methods
+    async addNoteWithImage(payload) {
+      const storeAuth = useStoreAuth();
+
+      let response = await fetch('/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${storeAuth.user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      response = await response.json();
+      console.log("RESPONSE: ", response);
+    }
   },
   getters: {
+    getNote: (state) => {
+      return (id) => {
+        console.log("ID: ", id);
+        return state.notes.filter(note => note.id === id)[0];
+      }
+    },
     getNoteContent: (state) => {
       return (id) => {
         return state.notes.filter(note => note.id === id)[0].content;

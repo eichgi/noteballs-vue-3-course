@@ -2,9 +2,16 @@
   <div class="notes">
 
     <AddEditNote v-model="newNote" ref="addEditNoteRef" placeholder="Add a New Note">
+      <template #uploads>
+        <label class="has-text-white">
+          Upload file
+          <input class="input" type="file" ref="inputFile" required/>
+        </label>
+      </template>
+
       <template #buttons>
-        <button class="button is-link has-background-success"
-                @click="addNote" :disabled="!newNote">Add New Note
+        <button class="button is-link has-background-success mt-5"
+                @click="addNoteWithImage" :disabled="!newNote">Add New Note
         </button>
       </template>
     </AddEditNote>
@@ -14,7 +21,13 @@
         class="progress is-large is-success" max="100"/>
 
     <template v-else>
-      <Note v-for="note in storeNotes.notes" :key="note.id" :note="note" @deleteClicked="deleteNote"/>
+      <div class="columns is-desktop is-multiline">
+        <Note v-for="note in storeNotes.notes"
+              class="column is-6"
+              :key="note.id"
+              :note="note"
+              @deleteClicked="deleteNote"/>
+      </div>
 
       <div v-if="!storeNotes.notes.length"
            class="is-size-4 has-text-centered has-text-grey-light is-family-monospace py-6">
@@ -42,23 +55,40 @@ import Note from "../components/Notes/Note.vue";
 import AddEditNote from "../components/Notes/AddEditNote.vue";
 import {useStoreNotes} from "../stores/storeNote";
 import {useWatchCharacters} from "../use/useWatchCharcaters";
+import {getStorage, ref as fbRef, uploadBytes} from 'firebase/storage';
+import {uploadFirebaseObject} from "../use/useFirebaseStorage";
 
+const storage = getStorage();
 const storeNotes = useStoreNotes();
 
 const newNote = ref('');
 const addEditNoteRef = ref(null);
+const inputFile = ref(null);
 
-const addNote = () => {
-  storeNotes.addNote({id: new Date().getTime().toString(), content: newNote.value});
+const addNote = (image = null) => {
+  storeNotes.addNote({
+    content: newNote.value,
+    image,
+  });
   newNote.value = "";
+  inputFile.value = "";
   addEditNoteRef.value.focusTextArea();
 }
+
+const addNoteWithImage = async () => {
+  const uploadFileResponse = await uploadFirebaseObject(inputFile.value.files[0]);
+  console.log(uploadFileResponse);
+  if (uploadFileResponse) {
+    addNote(uploadFileResponse.metadata);
+  }
+};
 
 const deleteNote = (idToDelete) => {
   storeNotes.deleteNote(idToDelete);
 };
 
 useWatchCharacters(newNote);
+
 </script>
 
 <style scoped>

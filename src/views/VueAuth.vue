@@ -38,6 +38,8 @@
               <button class="button is-primary">
                 {{ formTitle }}
               </button>
+              &nbsp;
+              <button class="button is-dark" @click.prevent="googleSignIn">Sign in with Google</button>
             </p>
           </div>
 
@@ -60,7 +62,7 @@ const formTitle = computed(() => {
 });
 
 const credentials = reactive({
-  email: 'hiram@noteballs.com',
+  email: 'admin@rio.com',
   password: '123456',
 });
 
@@ -75,6 +77,10 @@ const onSubmit = () => {
     }
   }
 };
+
+const googleSignIn = () => {
+  storeAuth.signInWithGoogle();
+}
 </script>
 
 <style scoped>

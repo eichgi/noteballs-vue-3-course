@@ -13,7 +13,7 @@
                     v-autofocus/>
       </div>
     </div>
-
+    <slot name="uploads"/>
     <div class="field is-grouped is-grouped-right">
       <div class="control">
         <slot name="buttons"/>
