@@ -13,7 +13,6 @@ export const useStoreUsers = defineStore('storeUsers', {
   actions: {
     async createUser(user) {
       const docRef = await setDoc(doc(db, 'users', user.id), user);
-      console.log("The user has been created with the following ID: ", docRef.id);
     },
     async getUsers() {
       const users = [];
