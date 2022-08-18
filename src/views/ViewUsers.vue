@@ -76,7 +76,7 @@ const getUsersFromFirebase = async () => {
 
 onMounted(() => {
   const storedUsers = storeUsers.loadUsers;
-  console.log("STORED: ", users);
+
   if (!storedUsers.length) {
     getUsersFromFirebase();
   } else {

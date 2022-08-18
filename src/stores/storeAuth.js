@@ -31,13 +31,12 @@ export const useStoreAuth = defineStore('storeAuth', {
       onAuthStateChanged(auth, (user) => {
         console.log("onAuthStateChanged");
         if (user) {
-          console.log("USER: ", user);
           user.getIdTokenResult()
             .then(tokenResult => console.log("GET ID TOKEN RESULT: ", tokenResult.claims));
           this.user = user;
           this.user.id = user.uid;
           this.user.email = user.email;
-          this.router.push('/');
+          this.router.push('/firestore');
           storeNotes.init();
         } else {
           this.user = {};
@@ -53,7 +52,6 @@ export const useStoreAuth = defineStore('storeAuth', {
           const credential = GoogleAuthProvider.credentialFromResult(res);
           const token = credential.accessToken;
           const user = res.user;
-          console.log(user, token);
         }).catch((error) => {
         // Handle Errors here.
         const errorCode = error.code;
@@ -63,14 +61,12 @@ export const useStoreAuth = defineStore('storeAuth', {
         // The AuthCredential type that was used.
         const credential = GoogleAuthProvider.credentialFromError(error);
         // ...
-        console.log(errorCode, errorMessage, email, credential);
       });
     },
     loginUser(credentials) {
       signInWithEmailAndPassword(auth, credentials.email, credentials.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log(user);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -79,11 +75,9 @@ export const useStoreAuth = defineStore('storeAuth', {
         });
     },
     registerUser(credentials) {
-      console.log(credentials);
       createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log("REGISTERED USER: ", user);
           useStoreUsers().createUser({
             id: user.uid,
             displayName: user.displayName,

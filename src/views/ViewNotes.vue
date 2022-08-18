@@ -77,7 +77,6 @@ const addNote = (image = null) => {
 
 const addNoteWithImage = async () => {
   const uploadFileResponse = await uploadFirebaseObject(inputFile.value.files[0]);
-  console.log(uploadFileResponse);
   if (uploadFileResponse) {
     addNote(uploadFileResponse.metadata);
   }
