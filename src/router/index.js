@@ -6,6 +6,7 @@ import ViewEditNote from "../views/ViewEditNote.vue";
 import VueAuth from "../views/VueAuth.vue";
 import Profile from "../views/Profile.vue";
 import ViewUsers from "../views/ViewUsers.vue";
+import FirestoreAdmin from "../views/FirestoreAdmin.vue";
 
 const routes = [
   {
@@ -37,6 +38,11 @@ const routes = [
     path: '/users',
     component: ViewUsers,
     name: 'users',
+  },
+  {
+    path: '/firestore',
+    component: FirestoreAdmin,
+    name: 'firestore',
   }
 ];
 

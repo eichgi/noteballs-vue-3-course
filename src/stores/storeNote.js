@@ -99,13 +99,11 @@ export const useStoreNotes = defineStore('storeNotes', {
       });
 
       response = await response.json();
-      console.log("RESPONSE: ", response);
     }
   },
   getters: {
     getNote: (state) => {
       return (id) => {
-        console.log("ID: ", id);
         return state.notes.filter(note => note.id === id)[0];
       }
     },

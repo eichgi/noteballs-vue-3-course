@@ -23,12 +23,10 @@ export const useStoreUsers = defineStore('storeUsers', {
           ...doc.data(),
         });
       });
-      console.log("USERS: ", users);
     }
   },
   getters: {
     loadUsers: (state) => {
-      console.log(state);
       return state.users;
     }
   }

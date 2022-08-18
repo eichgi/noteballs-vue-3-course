@@ -24,6 +24,9 @@
           <router-link class="navbar-item" active-class="is-active" to="/"
                        @click="showMobileNav = false;">Notes
           </router-link>
+          <router-link class="navbar-item" active-class="is-active" to="/firestore"
+                       @click="showMobileNav = false;">Firestore
+          </router-link>
           <router-link class="navbar-item" active-class="is-active" to="/stats"
                        @click="showMobileNav = false;">Stats
           </router-link>

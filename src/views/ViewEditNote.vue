@@ -50,14 +50,12 @@ const updateNote = (image = null) => {
 };
 
 const addNoteWithImage = async () => {
-  //console.log("note", note, note.value.image);
   const file = inputFile.value.files[0];
   if (!file) {
     updateNote();
   } else {
     await deleteFirebaseObject(note.value.image.fullPath);
     const uploadFileResponse = await uploadFirebaseObject(file);
-    console.log(uploadFileResponse);
     if (uploadFileResponse) {
       updateNote(uploadFileResponse.metadata);
     }

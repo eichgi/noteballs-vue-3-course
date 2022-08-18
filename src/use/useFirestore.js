@@ -1,4 +1,28 @@
-import {addDoc, deleteDoc, doc, updateDoc} from "firebase/firestore";
+import {addDoc, deleteDoc, doc, getDocs, query, updateDoc} from "firebase/firestore";
+
+export async function deleteFirestoreCollection(ref) {
+  const records = [];
+
+  const querySnapshot = await getDocs(query(ref));
+  querySnapshot.forEach( (doc) => {
+    records.push(doc);
+  });
+
+  for (let record of records) {
+    await deleteDoc(doc(ref, record.id));
+  }
+}
+
+export async function getFirestoreCollection(query) {
+  const records = [];
+
+  const querySnapshot = await getDocs(query);
+  querySnapshot.forEach(doc => {
+    records.push(doc.data());
+  });
+
+  return records;
+}
 
 export async function addFirestoreDoc(ref, data) {
   const wrapper = {

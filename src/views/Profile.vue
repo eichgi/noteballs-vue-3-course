@@ -44,7 +44,6 @@ import {ref} from "vue";
 
 const storeAuth = useStoreAuth();
 const user = storeAuth.authenticatedUser;
-console.log("USER: ", user);
 
 const becomeAdmin = async () => {
   try {
@@ -84,7 +83,6 @@ const updateProfileRestApi = async () => {
     displayName: displayName.value,
     photoURL: photoURL.value ?? '',
   };
-  console.log(data);
 
   try {
     let response = await fetch(`${import.meta.env.VITE_GOOGLE_REST_API_URL}/accounts:update?key=${import.meta.env.VITE_GOOGLE_REST_API_KEY}`, {
