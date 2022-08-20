@@ -1,8 +1,14 @@
 <template>
+  <h1 class="is-size-1">Firestore Playground</h1>
+  <br>
+  <div class="notification is-warning">
+    <strong>Firebase Actions</strong> are functions that executes the firebase sdk for web.
+  </div>
+
   <div class="card">
     <div class="card-header">
       <div class="card-header-title">
-        Firestore Admin
+        Firestore Actions
       </div>
     </div>
     <div class="card-content">
@@ -40,18 +46,56 @@
       </div>
     </div>
   </div>
+  <br>
+  <div class="notification is-warning">
+    <strong>Cloud Functions</strong> are firestore functions executed through the functions api.
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">
+        Cloud Functions
+      </div>
+    </div>
+    <div class="card-content">
+      <div class="columns">
+        <div class="column is-fullwidth">
+          <div class="field">
+            <div class="label">Model to seed</div>
+            <div class="control">
+              <input v-model="model" class="input" type="text" placeholder="Enter the name of the model">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-half">
+          <button class="button is-primary my-1" @click="createCollection">Create collection</button>
+          <br>
+          <button class="button is-link my-2" @click="getCollection">Get collection</button>
+          <br>
+          <button class="button is-danger my-1" @click="deleteCollection">Delete collection</button>&nbsp;
+        </div>
+        <div class="column is-half">
+          <p>Response:</p>
+          <pre>{{ functionResponse }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import {ref} from "vue";
-import {db} from "../js/firebase";
+import {db, functions} from "../js/firebase";
 import {collection, query} from "firebase/firestore";
 import {useStoreAuth} from "../stores/storeAuth";
 import {addFirestoreDoc, deleteFirestoreCollection, getFirestoreCollection} from "../use/useFirestore";
+import {httpsCallable} from "firebase/functions";
 
 const storeAuth = useStoreAuth();
 const model = ref("devices");
 const modelItems = ref([]);
+const functionResponse = ref({});
 
 const runSeeder = async () => {
   const models = createModels();
@@ -90,5 +134,50 @@ const deleteSeededData = async () => {
   const modelCollectionRef = collection(db, 'users', storeAuth.user.id, model.value);
   await deleteFirestoreCollection(modelCollectionRef);
   await getSeededData();
+};
+
+const onCallFunction = async () => {
+  const testFn = httpsCallable(functions, 'test');
+
+  try {
+    const response = await testFn({text: 'lorem ipsum...', value: 100});
+    functionResponse.value = response;
+  } catch (error) {
+    console.log("ERROR", error, error.code);
+  }
+};
+
+const createCollection = async () => {
+  const request = httpsCallable(functions, 'createCollection');
+
+  try {
+    const response = await request({collectionName: model.value});
+    functionResponse.value = response;
+  } catch (error) {
+    console.log("ERROR", error, error.code);
+  }
+
+};
+
+const getCollection = async () => {
+  const onCall = httpsCallable(functions, 'getCollection');
+
+  try {
+    const response = await onCall({collectionName: model.value});
+    functionResponse.value = response;
+  } catch (error) {
+    console.log("ERROR", error, error.code);
+  }
+};
+
+const deleteCollection = async () => {
+  const onCall = httpsCallable(functions, 'deleteCollection');
+
+  try {
+    const response = await onCall({collectionName: model.value});
+    functionResponse.value = response;
+  } catch (error) {
+    console.log("ERROR", error, error.code);
+  }
 };
 </script>
