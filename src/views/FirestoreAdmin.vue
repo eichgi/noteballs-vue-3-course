@@ -82,12 +82,120 @@
       </div>
     </div>
   </div>
+  <br>
+  <div class="notification is-warning">
+    <strong>Firestore Indexes</strong>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">
+        Table
+      </div>
+    </div>
+    <div class="card-content">
+      <div class="columns">
+        <div class="column is-12 is-flex">
+          <div class="field mx-2">
+            <div class="label">Order by Salary</div>
+            <div class="select is-rounded">
+              <select v-model="filters.salary">
+                <option value="">No</option>
+                <option value="asc">Ascendant</option>
+                <option value="desc">Descendant</option>
+              </select>
+            </div>
+          </div>
+          <div class="field mx-2">
+            <div class="label">Order by Age</div>
+            <div class="select is-rounded">
+              <select v-model="filters.age">
+                <option value="">No</option>
+                <option value="asc">Ascendant</option>
+                <option value="desc">Descendant</option>
+              </select>
+            </div>
+          </div>
+          <div class="field mx-2">
+            <div class="label">Filter by Activeness</div>
+            <div class="select is-rounded">
+              <select v-model="filters.active">
+                <option :value="false">No</option>
+                <option :value="true">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="field mx-2">
+            <div class="label">Filter by Benefits</div>
+            <div class="select is-rounded">
+              <select v-model="filters.benefits">
+                <option value="">None</option>
+                <option value="Parking Spot">Parking Spot</option>
+                <option value="Free Meal">Free Meal</option>
+                <option value="WFH">WFH</option>
+                <option value="Coupons">Coupons</option>
+              </select>
+            </div>
+          </div>
+          <div class="field mx-2">
+            <button class="button is-primary my-1 is-large" @click="showDataTable">Load records</button>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-12">
+          <table class="table is-fullwidth">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Salary</th>
+              <th>Active</th>
+              <th>Benefits</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-show="!dataTableItems.length">
+              <td colspan="6" style="height: 300px;">No records loaded</td>
+            </tr>
+            <tr v-for="item in dataTableItems" :key="item.id">
+              <td>{{ item.name }}</td>
+              <td>{{ item.age }}</td>
+              <td>{{ item.email }}</td>
+              <td>{{ item.role }}</td>
+              <td>${{ Intl.NumberFormat('en-US').format(item.salary) }}</td>
+              <td>{{ item.active ? 'YES' : 'NO' }}</td>
+              <td>{{ item.benefits.join(', ') }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">
+        Firestore Rules
+      </div>
+    </div>
+    <div class="card-content">
+      <div class="columns">
+        <div class="column is-12 is-flex">
+          <button class="button is-primary" @click="getAuthorizedCollection">Load authorized collection</button>&nbsp;
+          <button class="button is-primary" @click="getUnauthorizedCollection">Load unauthorized collection</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import {ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {db, functions} from "../js/firebase";
-import {collection, query} from "firebase/firestore";
+import {collection, query, orderBy} from "firebase/firestore";
 import {useStoreAuth} from "../stores/storeAuth";
 import {addFirestoreDoc, deleteFirestoreCollection, getFirestoreCollection} from "../use/useFirestore";
 import {httpsCallable} from "firebase/functions";
@@ -96,6 +204,13 @@ const storeAuth = useStoreAuth();
 const model = ref("devices");
 const modelItems = ref([]);
 const functionResponse = ref({});
+const dataTableItems = ref([]);
+const filters = reactive({
+  age: '',
+  salary: '',
+  active: false,
+  benefits: '',
+});
 
 const runSeeder = async () => {
   const models = createModels();
@@ -111,7 +226,7 @@ const getSeededData = async () => {
   }
 
   const modelCollectionRef = collection(db, 'users', storeAuth.user.id, model.value);
-  const q = query(modelCollectionRef);
+  const q = query(modelCollectionRef, orderBy('name', 'asc'), orderBy('age', 'asc'));
   const records = await getFirestoreCollection(q);
 
   modelItems.value = records;
@@ -180,4 +295,36 @@ const deleteCollection = async () => {
     console.log("ERROR", error, error.code);
   }
 };
+
+const showDataTable = async () => {
+  const onCall = httpsCallable(functions, 'showDataTable');
+
+  try {
+    const response = await onCall({filters});
+    //functionResponse.value = response;
+    const {items} = response.data;
+    dataTableItems.value = items;
+  } catch (error) {
+    console.log("ERROR", error, error.code);
+  }
+};
+
+const getAuthorizedCollection = async () => {
+  const collectionRef = collection(db, 'planets');
+  const q = query(collectionRef);
+  const records = await getFirestoreCollection(q);
+  console.log(records);
+};
+
+const getUnauthorizedCollection = async () => {
+  const collectionRef = collection(db, 'fruits');
+  const q = query(collectionRef);
+  const records = await getFirestoreCollection(q);
+  console.log(records);
+};
+
+onMounted(() => {
+  const scrollingElement = (document.scrollingElement || document.body);
+  scrollingElement.scrollTop = scrollingElement.scrollHeight;
+})
 </script>

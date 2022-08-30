@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const cors = require('cors')({origin: true});
 const admin = require('firebase-admin');
 const {sendEmailToNewUser} = require("./use/useUserFunctions");
-const {createCollection, deleteCollection, getCollection} = require("./use/useFirestore");
+const {createCollection, deleteCollection, getCollection, showDataTable} = require("./use/useFirestore");
 admin.initializeApp();
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -53,3 +53,5 @@ exports.createCollection = functions.https.onCall(createCollection);
 exports.deleteCollection = functions.https.onCall(deleteCollection);
 
 exports.getCollection = functions.https.onCall(getCollection);
+
+exports.showDataTable = functions.https.onCall(showDataTable);

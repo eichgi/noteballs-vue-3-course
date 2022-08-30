@@ -33,3 +33,5 @@ The following links are the firebase docs for this project:
 
 ## Deployments
 HOSTING: `firebase deploy --only hosting`
+
+FIRESTORE INDEXES: `firebase deploy --only firestore`
